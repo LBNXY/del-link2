@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>拆線 · DELINK — 縮網址展開工具</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d1210">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root{
+  --bg: #0d1210;
+  --panel: #141c19;
+  --panel-2: #1a2521;
+  --line: #24332e;
+  --ink: #e8f2ee;
+  --ink-dim: #8fa89e;
+  --amber: #f2b84b;
+  --amber-dim: #6b5326;
+  --red: #e5675a;
+  --green: #6fcf97;
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.045) 1px, transparent 1px) 0 0/22px 22px,
+    var(--bg);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  display:flex;
+  justify-content:center;
+  padding: 48px 20px;
+}
+
+.wrap{ width:100%; max-width: 640px; }
+
+.eyebrow{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  letter-spacing: 0.18em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.brand-dot{
+  width:8px; height:8px; border-radius:50%;
+  background: var(--amber);
+}
+
+h1{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.sub{
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height:1.6;
+  margin-bottom: 32px;
+}
+
+.panel{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 22px;
+  margin-bottom: 18px;
+}
+
+label{
+  display:block;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 10px;
+}
+
+textarea{
+  width:100%;
+  min-height: 96px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 12px 14px;
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height:1.6;
+  resize: vertical;
+}
+textarea::placeholder{ color: var(--ink-dim); opacity:0.7; }
+textarea:focus{ outline:none; border-color: var(--amber); }
+textarea[readonly]{ color: var(--ink); }
+
+.action-row{
+  display:flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.action-row button{ flex:1; }
+
+button{
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  padding: 13px 18px;
+  transition: transform .12s ease, filter .12s ease;
+}
+button:active{ transform: translateY(1px); }
+button:focus-visible{ outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.btn-main{
+  background: var(--amber);
+  color: #241a05;
+}
+.btn-main:hover{ filter: brightness(1.08); }
+.btn-main:disabled{ background: var(--amber-dim); color: #8a7a4d; cursor: not-allowed; }
+
+.btn-secondary{
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.btn-secondary:hover{ border-color: var(--amber); color: var(--amber); }
+.btn-secondary.copied{ border-color: var(--green); color: var(--green); }
+
+.notice-card{
+  display:none;
+  background: rgba(242,184,75,0.06);
+  border: 1px solid var(--amber-dim);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+.notice-title{
+  color: var(--amber);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
+  margin-bottom: 6px;
+}
+.notice-desc{
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.notice-link{
+  display:inline-block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--amber);
+  text-decoration: underline;
+}
+
+.footnote{
+  font-size: 11.5px;
+  color: var(--ink-dim);
+  opacity: 0.75;
+  margin-top: 26px;
+  line-height: 1.7;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow"><span class="brand-dot"></span>拆線 · DELINK</div>
+  <h1>縮網址展開工具</h1>
+  <div class="sub">貼上一或多個縮網址(支援多行)→ 展開真實網址 → 自動拔除追蹤碼 → 複製。</div>
+
+  <div class="panel">
+    <label for="urlInput">輸入連結(支援多行貼上)</label>
+    <textarea id="urlInput" placeholder="請貼入一或多個縮網址..."></textarea>
+    <div class="action-row">
+      <button id="btnPaste" class="btn-secondary">貼上</button>
+      <button id="btnExpand" class="btn-main">執行清理</button>
+    </div>
+  </div>
+
+  <div id="fallbackNotice" class="notice-card">
+    <div class="notice-title">⚠ 偵測到 Meta 原生分享連結(/share/)</div>
+    <div class="notice-desc">
+      Meta 會擋掉伺服器自動抓取,無法自動展開,請點下方連結用你自己的瀏覽器手動開啟。<br>
+      跳轉完成後,再把網址列上「已經展開好」的網址分享回這個工具一次,就能自動完成追蹤碼清除。
+    </div>
+    <a id="fallbackLink" href="#" target="_blank" rel="noopener" class="notice-link">在新分頁開啟原始頁面 ↗</a>
+  </div>
+
+  <div class="panel">
+    <label for="resultInput">清理後的乾淨網址</label>
+    <textarea id="resultInput" readonly placeholder="處理結果將顯示於此..."></textarea>
+    <div class="action-row">
+      <button id="btnCopy" class="btn-secondary">複製結果</button>
+    </div>
+  </div>
+
+  <div class="footnote">
+    展開透過你自己架設的 Cloudflare Worker 進行;若目標站台(如 Meta 系列)阻擋伺服器端抓取,會顯示手動開啟備援。連結內容不會被任何地方額外儲存。
+  </div>
+
+</div>
+
+<script>
+const WORKER_URL = 'https://urlcleaner.nxy1620.workers.dev/';
+
+const urlInput = document.getElementById('urlInput');
+const resultInput = document.getElementById('resultInput');
+const fallbackNotice = document.getElementById('fallbackNotice');
+const fallbackLink = document.getElementById('fallbackLink');
+const btnExpand = document.getElementById('btnExpand');
+const btnPaste = document.getElementById('btnPaste');
+const btnCopy = document.getElementById('btnCopy');
+
+// 1. 追蹤參數清理邏輯
+// 修正重點:.includes('ref') 這類「子字串比對」會誤刪像 ?prefer=dark 這種
+// 剛好包含 ref 三個字母、但完全不是追蹤碼的正常參數。改成只比對「完整參數
+// 名稱等於 ref」或「以 ref_ 開頭」,避免誤殺。affiliate / tracker 同理收緊。
+function cleanTrackingParams(urlString) {
+  try {
+    const url = new URL(urlString);
+    const params = url.searchParams;
+
+    const exactKeys = new Set([
+      // Meta / IG / Threads
+      'fbclid', 'igsh', 's', 'share_id', 'mibextid', 'rdid', 'xmt', 'ig_rid',
+      'fb_action_ids', 'fb_action_types', 'fb_source', 'fb_ref',
+      'slof', 'hwta', 'http_ref', 'xsec',
+
+      // Google / Ads / Other
+      'gclid', 'gclsrc', 'dclid', 'wbraid', 'gbraid', 'si', 'feature', 'pp', 'p',
+      'twclid', 't', 'ttclid', '_r', '_t', 'smtt', 'st', 'sp_atk', 'tag', 'ref_', 'pd_rd_r', 'pd_rd_w', 'pd_rd_wg',
+      'hsctad', '_hsenc', '_hsmi', 'mc_cid', 'mc_eid', 'icid', 'ncid', 'mkt_tok', 'sc_cid', 'line', 'openExternalBrowser', 'ref', 'source'
+    ]);
+
+    const keysToDelete = [];
+
+    params.forEach((_, key) => {
+      const k = key.toLowerCase();
+      if (exactKeys.has(k)) {
+        keysToDelete.push(key);
+        return;
+      }
+      if (
+        k.startsWith('utm_') || k.startsWith('ig_') || k.startsWith('fb_') ||
+        k.startsWith('hmb_') || k.startsWith('ga_') || k.startsWith('pk_') ||
+        k.startsWith('piwik_') || k.startsWith('at_')
+      ) {
+        keysToDelete.push(key);
+        return;
+      }
+      // 收緊:只認「開頭是 ref/affiliate/tracker」或「以底線接續這些字」,
+      // 不再用任意位置的子字串比對(避免 prefer、referee 這類正常參數被誤刪)。
+      if (
+        /^(ref|affiliate|tracker)([_-]|$)/.test(k) ||
+        k.includes('clid')
+      ) {
+        keysToDelete.push(key);
+      }
+    });
+
+    keysToDelete.forEach(key => params.delete(key));
+
+    let cleanedUrl = url.toString();
+    if (cleanedUrl.endsWith('?')) {
+      cleanedUrl = cleanedUrl.slice(0, -1);
+    }
+
+    return cleanedUrl;
+  } catch (e) {
+    return urlString;
+  }
+}
+
+// 2. 剪貼簿一鍵貼上
+async function handlePaste() {
+  try {
+    const text = await navigator.clipboard.readText();
+    urlInput.value = text;
+  } catch (err) {
+    alert('無法存取剪貼簿,請直接長按輸入框貼上。');
+  }
+}
+
+// 3. 一鍵複製結果
+async function handleCopy() {
+  if (!resultInput.value || resultInput.value.startsWith('連線解析中')) return;
+  try {
+    await navigator.clipboard.writeText(resultInput.value);
+    const original = btnCopy.innerText;
+    btnCopy.innerText = '已複製 ✓';
+    btnCopy.classList.add('copied');
+    setTimeout(() => {
+      btnCopy.innerText = original;
+      btnCopy.classList.remove('copied');
+    }, 2000);
+  } catch (err) {
+    alert('複製失敗,請手動選取文字複製。');
+  }
+}
+
+// 4. 執行批次還原與清理
+async function handleExpand() {
+  const rawText = urlInput.value.trim();
+  if (!rawText) return;
+
+  const urlRegex = /(https?:\/\/[^\s]+)/gi;
+  const foundUrls = rawText.match(urlRegex);
+
+  if (!foundUrls || foundUrls.length === 0) {
+    alert('請輸入有效的網址');
+    return;
+  }
+
+  fallbackNotice.style.display = 'none';
+  resultInput.value = '連線解析中...';
+  btnExpand.disabled = true;
+
+  const cleanedResults = [];
+  let hasShareFallback = false;
+  let firstFallbackUrl = '';
+
+  for (let rawUrl of foundUrls) {
+    let finalResult = rawUrl;
+    try {
+      const response = await fetch(`${WORKER_URL}?url=${encodeURIComponent(rawUrl)}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.expandedUrl) {
+          finalResult = data.expandedUrl;
+        }
+      }
+    } catch (err) {
+      console.error('Worker error:', err);
+    }
+
+    finalResult = cleanTrackingParams(finalResult);
+    cleanedResults.push(finalResult);
+
+    if (finalResult.includes('/share/')) {
+      hasShareFallback = true;
+      if (!firstFallbackUrl) firstFallbackUrl = finalResult;
+    }
+  }
+
+  btnExpand.disabled = false;
+  resultInput.value = cleanedResults.join('\n');
+
+  if (hasShareFallback) {
+    fallbackLink.href = firstFallbackUrl;
+    fallbackNotice.style.display = 'block';
+  }
+}
+
+btnPaste.addEventListener('click', handlePaste);
+btnExpand.addEventListener('click', handleExpand);
+btnCopy.addEventListener('click', handleCopy);
+
+// 5. Android Web Share Target 自動接收分享資料邏輯
+// 修正重點:原本分享進來只會展開清理、顯示結果,不會自動複製,使用者還是
+// 得手動點一次「複製結果」。這裡改成 await 展開完成後,直接接著自動複製,
+// 才是符合「分享 → 處理 → 複製好」這個訴求的完整流程。
+window.addEventListener('DOMContentLoaded', async () => {
+  const searchParams = new URLSearchParams(window.location.search);
+
+  const sharedTitle = searchParams.get('title') || '';
+  const sharedText = searchParams.get('text') || '';
+  const sharedUrl = searchParams.get('url') || '';
+
+  const combinedInput = [sharedTitle, sharedText, sharedUrl].filter(Boolean).join(' ');
+
+  if (combinedInput) {
+    urlInput.value = combinedInput;
+    history.replaceState({}, '', window.location.pathname);
+    await handleExpand();
+    await handleCopy();
+  }
+});
+
+// 6. 註冊 service worker —— Android 要把 PWA 轉成能出現在系統分享選單裡的
+// 應用程式(WebAPK),除了 manifest + icons,官方條件還要求有已註冊、
+// 帶 fetch handler 的 service worker。少了這步,分享選單可能不會出現這個工具。
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => { /* best-effort */ });
+}
+</script>
+</body>
+</html>
