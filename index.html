@@ -495,6 +495,15 @@
   let toastTimer = null;
   let lastResults = [];
 
+  // ---- 網址精準提取函式 (可完美剝離 IG 影片分享帶有的中文標題與多餘字元) ----
+  function extractUrls(text) {
+    if (!text) return [];
+    // 匹配 http/https 網址，排除中文字元、引號與括號
+    const urlRegex = /(https?:\/\/[^\s\u4e00-\u9fa5"'()<>[\]{}]+)/gi;
+    const matches = text.match(urlRegex) || [];
+    return matches.map(u => u.replace(/[\s,。，！!？?]+$/, ''));
+  }
+
   // ---- 1. 追蹤參數清理邏輯(移植自 DELINK,保留非追蹤用的功能參數)----
   function cleanTrackingParams(urlString) {
     try {
@@ -564,15 +573,15 @@
       return;
     }
 
-    const match = raw.trim().match(/(https?:\/\/[^\s]+)/i);
-    if (!match) {
+    const urls = extractUrls(raw);
+    if (urls.length === 0) {
       preview.classList.add('show', 'error');
       preview.textContent = '無法解析網址,請確認格式是否正確。';
       return;
     }
 
     try {
-      const original = match[0];
+      const original = urls[0];
       const cleanedLocal = cleanTrackingParams(original);
       const changed = original !== cleanedLocal;
 
@@ -630,21 +639,18 @@
 
   // ---- 5. 執行批次還原(展開短網址)與清理 ----
   async function handleExpand() {
-  const rawText = input.value.trim();
-  if (!rawText) {
-    showToast('請先貼上連結');
-    return [];
-  }
+    const rawText = input.value.trim();
+    if (!rawText) {
+      showToast('請先貼上連結');
+      return [];
+    }
 
-  // 使用優化後的網址擷取邏輯
-  const foundUrls = extractUrls(rawText);
+    const foundUrls = extractUrls(rawText);
 
-  if (!foundUrls || foundUrls.length === 0) {
-    showToast('請輸入有效的網址');
-    return [];
-  }
-  // ... 後續邏輯保持不變
-}
+    if (!foundUrls || foundUrls.length === 0) {
+      showToast('請輸入有效的網址');
+      return [];
+    }
 
     fallbackNotice.style.display = 'none';
     execBtn.disabled = true;
