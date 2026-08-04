@@ -176,18 +176,29 @@
   }
   .tag-chip .bump{ width:5px; height:5px; border-radius:50%; background:var(--tan); }
 
-  /* divider arrow / execute button */
+  /* divider arrow — 純裝飾,恢復原始 clean-link 樣式 */
   .divider{ display:flex; justify-content:center; margin:-8px 0; position:relative; z-index:2; }
   .divider .puck{
     width:40px; height:40px; border-radius:50%; background:#fff;
     border:1px solid rgba(0,0,0,0.1); display:grid; place-items:center;
     box-shadow:0 6px 16px rgba(0,0,0,0.08);
-    cursor:pointer; padding:0; transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
   }
-  .divider .puck:hover{ box-shadow:0 8px 20px rgba(0,0,0,0.12); }
-  .divider .puck:active{ transform:translateY(1px); }
-  .divider .puck:disabled{ cursor:not-allowed; filter:grayscale(0.4) opacity(0.7); }
-  .divider .puck.busy svg{ animation:spin 0.8s linear infinite; }
+
+  /* 執行清理按鈕 — 放在「原始連結」卡片內、標籤列下方 */
+  .exec-btn{
+    width:100%; margin-top:18px;
+    height:50px; border-radius:14px; border:none;
+    background:var(--green); color:#fff; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-family:'Space Grotesk','Noto Sans TC',sans-serif;
+    font-weight:700; font-size:14px; letter-spacing:0.01em;
+    box-shadow:0 8px 20px rgba(0,163,129,0.28);
+    transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  }
+  .exec-btn:hover{ filter:brightness(1.05); box-shadow:0 10px 24px rgba(0,163,129,0.36); }
+  .exec-btn:active{ transform:translateY(1px); }
+  .exec-btn:disabled{ cursor:not-allowed; filter:grayscale(0.35) opacity(0.75); }
+  .exec-btn.busy svg{ animation:spin 0.8s linear infinite; }
   @keyframes spin{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
 
   /* fallback notice (Meta /share/ manual open) */
@@ -350,14 +361,21 @@
               <span class="tag-chip"><span class="bump"></span>gclid</span>
               <span class="tag-chip"><span class="bump"></span>xmt</span>
             </div>
+
+            <button type="button" class="exec-btn" id="execBtn">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 3.5V12.5M8 12.5L4.5 9M8 12.5L11.5 9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>執行清理</span>
+            </button>
           </div>
 
           <div class="divider">
-            <button type="button" class="puck" id="execBtn" title="執行清理" aria-label="執行清理">
+            <div class="puck">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M8 3.5V12.5M8 12.5L4.5 9M8 12.5L11.5 9" stroke="#00A381" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-            </button>
+            </div>
           </div>
 
           <div class="notice-card" id="fallbackNotice">
