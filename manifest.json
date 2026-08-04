@@ -1,7 +1,7 @@
 {
-  "name": "拆線 — 縮網址展開工具",
-  "short_name": "拆線",
-  "description": "展開縮網址、清除追蹤參數",
+  "name": "Clean Link",
+  "short_name": "Clean Link",
+  "description": "清除網址追蹤",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
