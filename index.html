@@ -630,19 +630,21 @@
 
   // ---- 5. 執行批次還原(展開短網址)與清理 ----
   async function handleExpand() {
-    const rawText = input.value.trim();
-    if (!rawText) {
-      showToast('請先貼上連結');
-      return [];
-    }
+  const rawText = input.value.trim();
+  if (!rawText) {
+    showToast('請先貼上連結');
+    return [];
+  }
 
-    const urlRegex = /(https?:\/\/[^\s]+)/gi;
-    const foundUrls = rawText.match(urlRegex);
+  // 使用優化後的網址擷取邏輯
+  const foundUrls = extractUrls(rawText);
 
-    if (!foundUrls || foundUrls.length === 0) {
-      showToast('請輸入有效的網址');
-      return [];
-    }
+  if (!foundUrls || foundUrls.length === 0) {
+    showToast('請輸入有效的網址');
+    return [];
+  }
+  // ... 後續邏輯保持不變
+}
 
     fallbackNotice.style.display = 'none';
     execBtn.disabled = true;
