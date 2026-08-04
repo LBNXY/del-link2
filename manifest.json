@@ -1,23 +1,14 @@
-{
-  "name": "Clean Link",
-  "short_name": "Clean Link",
-  "description": "清除網址追蹤",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#0d1210",
-  "theme_color": "#0d1210",
-  "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
-  ],
-  "share_target": {
-    "action": "./index.html",
-    "method": "GET",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
+"icons": [
+  { 
+    "src": "icon-192.png", 
+    "sizes": "192x192", 
+    "type": "image/png", 
+    "purpose": "any maskable" 
+  },
+  { 
+    "src": "icon-512.png", 
+    "sizes": "512x512", 
+    "type": "image/png", 
+    "purpose": "any maskable" 
   }
-}
+]
