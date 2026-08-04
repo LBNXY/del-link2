@@ -3,400 +3,745 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>拆線 · DELINK </title>
+<title>Clean Link — 一鍵清除連結追蹤參數</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0d1210">
+<meta name="theme-color" content="#00A381">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Space+Grotesk:wght@600;700&display=swap');
 
-:root{
-  --bg: #0d1210;
-  --panel: #141c19;
-  --panel-2: #1a2521;
-  --line: #24332e;
-  --ink: #e8f2ee;
-  --ink-dim: #8fa89e;
-  --amber: #f2b84b;
-  --amber-dim: #6b5326;
-  --red: #e5675a;
-  --green: #6fcf97;
-}
+  :root{
+    --green:#00A381;
+    --green-dark:#0a5c4f;
+    --lime:#C3E978;
+    --ink:#1a1a1a;
+    --muted:#5a5a5a;
+    --muted-2:#7a7a7a;
+    --cream:#F0E1CE;
+    --teal:#7CCBCA;
+    --pink:#F1C1C2;
+    --tan:#AB7660;
+    --khaki:#8a7f6b;
+    --sand-1:#fbfaf6;
+    --sand-2:#fdfbf3;
+    --sand-3:#f5f2ea;
+    --line-1:#eae6da;
+    --line-2:#ece7d8;
+    --line-3:#e7e1d2;
+    --off-white:#fffffd;
+    --red:#e23a3a;
+    --red-2:#d12d2d;
+    --red-bg:#ffe2e2;
+    --red-line:#ffd0d0;
+    --clay:#c17c5a;
+  }
 
-*{ box-sizing: border-box; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Noto Sans TC','Segoe UI',system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    background:var(--green);
+  }
+  ::selection{background:var(--lime);color:#0a4d42;}
 
-body{
-  margin:0;
-  min-height:100vh;
-  background:
-    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.045) 1px, transparent 1px) 0 0/22px 22px,
-    var(--bg);
-  color: var(--ink);
-  font-family: 'JetBrains Mono', monospace;
-  display:flex;
-  justify-content:center;
-  padding: 48px 20px;
-}
+  .page{
+    min-height:100vh;
+    width:100%;
+    padding:12px;
+    background-color:var(--green);
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.22) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.22) 1px, transparent 1px);
+    background-size:24px 24px;
+    border-radius:24px;
+  }
+  @media(min-width:768px){ .page{ padding:16px; border-radius:28px; } }
 
-.wrap{ width:100%; max-width: 640px; }
+  .sheet{
+    max-width:1180px;
+    margin:0 auto;
+    background:var(--off-white);
+    border:1.5px solid rgba(0,0,0,0.05);
+    border-radius:32px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.12);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    min-height:calc(100vh - 24px);
+  }
+  @media(min-width:768px){ .sheet{ border-radius:44px; } }
 
-.eyebrow{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:12px;
-  letter-spacing: 0.18em;
-  color: var(--amber);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-.brand-dot{
-  width:8px; height:8px; border-radius:50%;
-  background: var(--amber);
-}
+  /* ---------- HERO ---------- */
+  .hero{ padding:44px 24px 32px; }
+  @media(min-width:768px){ .hero{ padding:56px 48px 40px; } }
 
-h1{
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 30px;
-  font-weight: 700;
-  margin: 0 0 8px;
-  letter-spacing: -0.01em;
-}
+  .hero-inner{ max-width:1080px; margin:0 auto; }
 
-.sub{
-  color: var(--ink-dim);
-  font-size: 14px;
-  line-height:1.6;
-  margin-bottom: 32px;
-}
+  .headline{
+    font-family:'Space Grotesk','Noto Sans TC',sans-serif;
+    font-weight:900;
+    letter-spacing:-0.03em;
+    line-height:0.98;
+    margin:0;
+    color:var(--ink);
+    font-size:40px;
+  }
+  @media(min-width:640px){ .headline{ font-size:56px; } }
+  .headline .cl-clean{ color:var(--ink); }
+  .headline .cl-link{ color:var(--green-dark); }
+  .headline .cl-scissors{
+    display:inline-block;
+    color:var(--green);
+    margin-left:2px;
+    transform:rotate(-10deg);
+  }
 
-.panel{
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 22px;
-  margin-bottom: 18px;
-}
+  /* ---------- MAIN CARDS ---------- */
+  .main{ padding:8px 20px 48px; flex:1; }
+  @media(min-width:768px){ .main{ padding:8px 48px 64px; } }
+  .stack{ max-width:920px; margin:0 auto; display:flex; flex-direction:column; gap:24px; }
 
-label{
-  display:block;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  margin-bottom: 10px;
-}
+  .card{
+    position:relative;
+    background:#fff;
+    border:1px solid rgba(0,0,0,0.08);
+    border-radius:24px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.04);
+    padding:20px;
+  }
+  @media(min-width:768px){ .card{ border-radius:28px; padding:32px; } }
 
-textarea{
-  width:100%;
-  min-height: 96px;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 12px 14px;
-  color: var(--ink);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  line-height:1.6;
-  resize: vertical;
-}
-textarea::placeholder{ color: var(--ink-dim); opacity:0.7; }
-textarea:focus{ outline:none; border-color: var(--amber); }
-textarea[readonly]{ color: var(--ink); }
+  .card-head{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; }
+  .card-title-group{ display:flex; align-items:center; gap:12px; }
+  .card-title{ font-family:'Space Grotesk','Noto Sans TC',sans-serif; font-weight:900; font-size:17px; letter-spacing:-0.01em; color:var(--ink); margin:0; }
+  .badge{ font-size:10px; font-weight:700; letter-spacing:0.14em; padding:4px 10px; border-radius:999px; background:var(--ink); color:#fff; }
+  .badge.clean{ background:var(--lime); color:var(--green-dark); border:1px solid rgba(10,92,79,0.1); }
+  .legend{ display:flex; align-items:center; gap:8px; font-size:11px; color:#9a9a9a; }
+  .legend .sw{ width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block; }
 
-.action-row{
-  display:flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-.action-row button{ flex:1; }
+  textarea{
+    width:100%;
+    min-height:96px;
+    resize:vertical;
+    background:var(--sand-1);
+    border:1px solid var(--line-1);
+    border-radius:16px;
+    padding:16px;
+    font-size:14px;
+    line-height:1.5;
+    font-family:'Space Grotesk',monospace;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  textarea::placeholder{ color:#b8b4a8; }
+  textarea:focus{ border-color:rgba(0,163,129,0.4); box-shadow:0 0 0 3px rgba(0,163,129,0.15); }
 
-button{
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  border-radius: 7px;
-  border: none;
-  cursor: pointer;
-  padding: 13px 18px;
-  transition: transform .12s ease, filter .12s ease;
-}
-button:active{ transform: translateY(1px); }
-button:focus-visible{ outline: 2px solid var(--amber); outline-offset: 2px; }
+  .field-wrap{ position:relative; }
+  .field-tools{ position:absolute; bottom:12px; right:12px; display:flex; align-items:center; gap:8px; }
+  .char-count{ font-size:10px; color:#b8b4a8; font-family:'Space Grotesk',monospace; }
+  .clear-btn, .paste-btn{
+    font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;
+    background:#fff; border:1px solid rgba(0,0,0,0.10); cursor:pointer;
+    transition:background .15s ease;
+    font-family:'Noto Sans TC',sans-serif;
+  }
+  .clear-btn:hover, .paste-btn:hover{ background:rgba(0,0,0,0.05); }
 
-.btn-main{
-  background: var(--amber);
-  color: #241a05;
-}
-.btn-main:hover{ filter: brightness(1.08); }
-.btn-main:disabled{ background: var(--amber-dim); color: #8a7a4d; cursor: not-allowed; }
+  .preview{
+    margin-top:16px; border-radius:14px; border:1px dashed var(--line-3);
+    background:var(--sand-2); padding:14px 16px;
+    font-size:13px; line-height:1.7; font-family:'Space Grotesk',monospace;
+    word-break:break-all; display:none;
+  }
+  .preview.show{ display:block; }
+  .preview .clean-part{ color:var(--ink); font-weight:500; }
+  .preview .cut-part{
+    background:var(--red-bg); color:var(--red);
+    text-decoration:line-through; text-decoration-color:var(--red); text-decoration-thickness:2px;
+    padding:1px 6px; border-radius:6px; border:1px solid var(--red-line);
+    margin-left:8px;
+  }
+  .preview.error{ color:var(--clay); font-weight:500; font-family:'Noto Sans TC',sans-serif; }
 
-.btn-secondary{
-  background: var(--panel-2);
-  color: var(--ink);
-  border: 1px solid var(--line);
-}
-.btn-secondary:hover{ border-color: var(--amber); color: var(--amber); }
-.btn-secondary.copied{ border-color: var(--green); color: var(--green); }
+  .tag-row{ margin-top:16px; display:flex; flex-wrap:wrap; gap:8px; }
+  .tag-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 11px; border-radius:999px;
+    background:var(--sand-3); border:1px solid var(--line-2);
+    font-size:11px; font-family:'Space Grotesk',monospace; color:var(--khaki);
+  }
+  .tag-chip .bump{ width:5px; height:5px; border-radius:50%; background:var(--tan); }
 
-.notice-card{
-  display:none;
-  background: rgba(242,184,75,0.06);
-  border: 1px solid var(--amber-dim);
-  border-radius: 10px;
-  padding: 18px 20px;
-  margin-bottom: 18px;
-}
-.notice-title{
-  color: var(--amber);
-  font-size: 13px;
-  font-weight: 700;
-  font-family: 'Space Grotesk', sans-serif;
-  margin-bottom: 6px;
-}
-.notice-desc{
-  font-size: 12.5px;
-  color: var(--ink-dim);
-  line-height: 1.6;
-  margin-bottom: 10px;
-}
-.notice-link{
-  display:inline-block;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--amber);
-  text-decoration: underline;
-}
+  /* divider arrow / execute button */
+  .divider{ display:flex; justify-content:center; margin:-8px 0; position:relative; z-index:2; }
+  .divider .puck{
+    width:40px; height:40px; border-radius:50%; background:#fff;
+    border:1px solid rgba(0,0,0,0.1); display:grid; place-items:center;
+    box-shadow:0 6px 16px rgba(0,0,0,0.08);
+    cursor:pointer; padding:0; transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  }
+  .divider .puck:hover{ box-shadow:0 8px 20px rgba(0,0,0,0.12); }
+  .divider .puck:active{ transform:translateY(1px); }
+  .divider .puck:disabled{ cursor:not-allowed; filter:grayscale(0.4) opacity(0.7); }
+  .divider .puck.busy svg{ animation:spin 0.8s linear infinite; }
+  @keyframes spin{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
 
-.footnote{
-  font-size: 11.5px;
-  color: var(--ink-dim);
-  opacity: 0.75;
-  margin-top: 26px;
-  line-height: 1.7;
-}
+  /* fallback notice (Meta /share/ manual open) */
+  .notice-card{
+    display:none;
+    border-radius:24px;
+    border:1.5px solid var(--tan);
+    background:#fbf3ee;
+    padding:18px 20px;
+  }
+  @media(min-width:768px){ .notice-card{ border-radius:28px; padding:24px 28px; } }
+  .notice-title{
+    font-family:'Space Grotesk','Noto Sans TC',sans-serif;
+    font-weight:900; font-size:13px; color:var(--tan);
+    display:flex; align-items:center; gap:8px;
+    margin-bottom:8px;
+  }
+  .notice-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--tan); flex-shrink:0; }
+  .notice-desc{ font-size:12.5px; color:var(--muted); line-height:1.7; margin-bottom:12px; }
+  .notice-link{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:700; color:#fff;
+    background:var(--tan); padding:9px 16px; border-radius:999px;
+    text-decoration:none;
+  }
+  .notice-link:hover{ filter:brightness(1.05); }
+
+  /* clean output card */
+  .clean-card{
+    position:relative;
+    border-radius:24px; padding:1px;
+    border:1.8px solid var(--green);
+    background:#eef8f0;
+    box-shadow:0 10px 30px rgba(0,163,129,0.12);
+  }
+  @media(min-width:768px){ .clean-card{ border-radius:28px; } }
+  .clean-card-inner{ border-radius:22px; background:#eef8f0; padding:20px; }
+  @media(min-width:768px){ .clean-card-inner{ border-radius:26px; padding:32px; } }
+
+  .clean-icon{ width:32px; height:32px; border-radius:50%; background:#fff; border:1px solid rgba(0,163,129,0.2); display:grid; place-items:center; box-shadow:0 1px 2px rgba(0,0,0,0.05); flex-shrink:0; }
+
+  .copy-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:#fff; border:1px solid rgba(0,0,0,0.10);
+    border-radius:999px; padding:10px 20px;
+    font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--ink);
+    box-shadow:0 3px 12px rgba(0,0,0,0.06);
+    cursor:pointer; transition:box-shadow .15s ease, transform .15s ease;
+    touch-action:manipulation;
+    font-family:'Noto Sans TC',sans-serif;
+  }
+  .copy-btn:hover{ box-shadow:0 6px 18px rgba(0,0,0,0.10); transform:translateY(-0.5px); }
+  .copy-btn:active{ transform:translateY(0); }
+  .copy-btn svg{ transition:transform .12s ease; }
+  .copy-btn:active svg{ transform:scale(0.9); }
+
+  .result-box{
+    position:relative;
+    background:#fff; border-radius:16px; border:1px solid rgba(0,0,0,0.06);
+    box-shadow:0 2px 10px rgba(0,0,0,0.03);
+    padding:18px 16px; min-height:56px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .result-box .placeholder{ font-size:14px; color:#a8b5b0; font-weight:500; }
+  .result-box .result-text{
+    font-family:'Space Grotesk',monospace; font-size:14px; line-height:1.6; color:#11887B; font-weight:500;
+    word-break:break-all; white-space:pre-wrap; padding-right:8px;
+  }
+  .result-dot{ width:28px; height:28px; border-radius:50%; background:#eef8f0; border:1px solid rgba(0,163,129,0.1); display:grid; place-items:center; flex-shrink:0; }
+  .result-dot i{ width:8px; height:8px; border-radius:50%; background:var(--green); display:block; }
+  .copied-pill{
+    position:absolute; right:12px; top:12px;
+    background:var(--green); color:#fff; font-size:11px; font-weight:700;
+    padding:3px 10px; border-radius:999px; box-shadow:0 2px 6px rgba(0,0,0,0.15);
+    opacity:0; transition:opacity .15s ease;
+  }
+  .copied-pill.show{ opacity:1; }
+
+  .feedback-line{ margin-top:12px; font-size:12px; font-weight:700; color:var(--green); opacity:0; transition:opacity .15s ease; word-break:break-all; }
+  .feedback-line.show{ opacity:1; }
+
+  .meta-row{ margin-top:16px; display:flex; flex-wrap:wrap; align-items:center; gap:12px; font-size:11px; color:#6b8a82; }
+  .meta-row .sep{ width:1px; height:12px; background:rgba(0,0,0,0.1); display:none; }
+  @media(min-width:768px){ .meta-row .sep{ display:inline-block; } }
+  .meta-pill{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; background:#fff; border:1px solid rgba(0,0,0,0.05); font-size:10px; }
+  .meta-pill .bump{ width:6px; height:6px; border-radius:50%; background:var(--lime); border:1px solid rgba(0,0,0,0.1); }
+
+  .corner-star{
+    position:absolute; right:-1px; top:-1px; width:40px; height:40px;
+    background:var(--lime); border:1px solid rgba(10,92,79,0.1);
+    border-bottom-left-radius:18px; border-top-right-radius:22px;
+    display:grid; place-items:center;
+  }
+
+  /* info cards */
+  .info-grid{ display:grid; gap:12px; padding-top:8px; }
+  @media(min-width:768px){ .info-grid{ grid-template-columns:repeat(3,1fr); } }
+  .info-card{
+    border-radius:18px; border:1px solid rgba(0,0,0,0.05); background:#fff;
+    padding:14px 16px; display:flex; gap:12px; align-items:flex-start;
+    box-shadow:0 4px 12px rgba(0,0,0,0.03);
+  }
+  .info-dot{ width:32px; height:32px; border-radius:50%; border:1px solid rgba(0,0,0,0.1); flex-shrink:0; margin-top:2px; }
+  .info-title{ font-size:12px; font-weight:900; color:var(--ink); }
+  .info-desc{ font-size:11px; line-height:1.5; color:var(--muted-2); margin-top:2px; }
+
+  footer{ margin-top:auto; border-top:1px solid rgba(0,0,0,0.06); padding:20px 24px; display:flex; justify-content:center; background:#fff; }
+  footer p{ margin:0; font-size:10px; letter-spacing:0.03em; color:#9a9a9a; text-align:center; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translate(-50%,20px);
+    background:var(--ink); color:#fff; font-size:13px; font-weight:700;
+    padding:12px 20px; border-radius:999px; box-shadow:0 12px 32px rgba(0,0,0,0.22);
+    display:flex; align-items:center; gap:8px; z-index:50;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+    max-width:90vw; text-align:left;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+  .toast .ok{ width:20px; height:20px; border-radius:50%; background:var(--lime); color:var(--green-dark); display:grid; place-items:center; font-size:12px; font-weight:900; flex-shrink:0; }
 </style>
 </head>
 <body>
-<div class="wrap">
+  <div class="page">
+    <div class="sheet">
 
-  <div class="eyebrow"><span class="brand-dot"></span>拆線 · DELINK</div>
+      <section class="hero">
+        <div class="hero-inner">
+          <h1 class="headline">
+            <span class="cl-clean">Clean</span> <span class="cl-link">Link</span><span class="cl-scissors">✁</span>
+          </h1>
+        </div>
+      </section>
 
-  <div class="panel">
-    <label for="urlInput">輸入連結(支援多行貼上)</label>
-    <textarea id="urlInput" placeholder="請貼入一或多個縮網址..."></textarea>
-    <div class="action-row">
-      <button id="btnPaste" class="btn-secondary">貼上</button>
-      <button id="btnExpand" class="btn-main">執行清理</button>
+      <section class="main">
+        <div class="stack">
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title-group">
+                <h2 class="card-title">原始連結</h2>
+              </div>
+              <div class="legend"><span class="sw"></span>紅色刪除線為將被移除部分</div>
+            </div>
+
+            <div class="field-wrap">
+              <textarea id="urlInput" placeholder="在此貼上充滿追蹤參數的網址,支援多行貼上批次清理,例如 https://..."></textarea>
+              <div class="field-tools">
+                <span class="char-count" id="charCount">0 chars</span>
+                <button type="button" class="paste-btn" id="pasteBtn">貼上</button>
+                <button type="button" class="clear-btn" id="clearBtn" style="display:none;">清空</button>
+              </div>
+            </div>
+
+            <div class="preview" id="preview"></div>
+
+            <div class="tag-row">
+              <span class="tag-chip"><span class="bump"></span>utm_source</span>
+              <span class="tag-chip"><span class="bump"></span>fbclid</span>
+              <span class="tag-chip"><span class="bump"></span>igsh</span>
+              <span class="tag-chip"><span class="bump"></span>gclid</span>
+              <span class="tag-chip"><span class="bump"></span>xmt</span>
+            </div>
+          </div>
+
+          <div class="divider">
+            <button type="button" class="puck" id="execBtn" title="執行清理" aria-label="執行清理">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 3.5V12.5M8 12.5L4.5 9M8 12.5L11.5 9" stroke="#00A381" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="notice-card" id="fallbackNotice">
+            <div class="notice-title"><span class="dot"></span>偵測到 Meta 原生分享連結(/share/)</div>
+            <div class="notice-desc">
+              Meta 會擋掉伺服器自動抓取,無法自動展開,請點下方連結用你自己的瀏覽器手動開啟。<br>
+              跳轉完成後,再把網址列上「已經展開好」的網址分享回這個工具一次,就能自動完成追蹤碼清除。
+            </div>
+            <a id="fallbackLink" href="#" target="_blank" rel="noopener" class="notice-link">在新分頁開啟原始頁面 ↗</a>
+          </div>
+
+          <div class="clean-card">
+            <div class="clean-card-inner">
+              <div class="card-head">
+                <div class="card-title-group">
+                  <div class="clean-icon">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 2.5L9.2 6H13L10 8.2L10.9 11.7L8 9.6L5.1 11.7L6 8.2L3 6H6.8L8 2.5Z" fill="#00A381" stroke="#00A381" stroke-width="0.6" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <h2 class="card-title" style="color:var(--green-dark);">乾淨連結</h2>
+                  <span class="badge clean">CLEAN</span>
+                </div>
+                <button type="button" class="copy-btn" id="copyBtn">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <rect x="5" y="5" width="8" height="8" rx="2" stroke="#1a1a1a" stroke-width="1.2"/>
+                    <path d="M3 10V4C3 3.44772 3.44772 3 4 3H10" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round"/>
+                  </svg>
+                  <span id="copyLabel">複製結果</span>
+                </button>
+              </div>
+
+              <div class="result-box">
+                <div id="resultContent" class="placeholder">乾淨連結會顯示在這裡...</div>
+                <span class="copied-pill" id="copiedPill">✓</span>
+              </div>
+
+              <div class="feedback-line" id="feedbackLine" aria-live="polite"></div>
+
+              <div class="meta-row">
+                <span style="display:inline-flex; align-items:center; gap:6px;">
+                  <span style="width:12px;height:12px;border-radius:50%;background:#fff;border:1px solid rgba(0,163,129,0.2);display:inline-grid;place-items:center;">
+                    <span style="width:4px;height:4px;border-radius:50%;background:var(--green);"></span>
+                  </span>
+                  已還原短網址並移除追蹤參數
+                </span>
+                <span class="sep"></span>
+                <span>支援多網址批次清理</span>
+                <span class="meta-pill"><span class="bump"></span>本地處理 • 不額外儲存</span>
+              </div>
+            </div>
+
+            <div class="corner-star">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1.5L7.8 5H11.5L8.6 7.1L9.5 10.5L7 8.6L4.5 10.5L5.4 7.1L2.5 5H6.2L7 1.5Z" fill="#0a5c4f"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="info-dot" style="background:var(--teal);"></div>
+              <div>
+                <div class="info-title">什麼被清除了?</div>
+                <div class="info-desc">?utm_*, fbclid, gclid, igsh...</div>
+              </div>
+            </div>
+            <div class="info-card">
+              <div class="info-dot" style="background:var(--cream);"></div>
+              <div>
+                <div class="info-title">會保留什麼?</div>
+                <div class="info-desc">網域、路徑與非追蹤用的功能參數</div>
+              </div>
+            </div>
+            <div class="info-card">
+              <div class="info-dot" style="background:var(--pink);"></div>
+              <div>
+                <div class="info-title">短網址展開</div>
+                <div class="info-desc">透過自建 Worker 還原真實網址</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <footer>
+        <p>© 2025 PRIVACY GREEN PROJECT • BUILT FOR CLEAN SHARING</p>
+      </footer>
     </div>
   </div>
 
-  <div id="fallbackNotice" class="notice-card">
-    <div class="notice-title">⚠ 偵測到 Meta 原生分享連結(/share/)</div>
-    <div class="notice-desc">
-      Meta 會擋掉伺服器自動抓取,無法自動展開,請點下方連結用你自己的瀏覽器手動開啟。<br>
-      跳轉完成後,再把網址列上「已經展開好」的網址分享回這個工具一次,就能自動完成追蹤碼清除。
-    </div>
-    <a id="fallbackLink" href="#" target="_blank" rel="noopener" class="notice-link">在新分頁開啟原始頁面 ↗</a>
-  </div>
-
-  <div class="panel">
-    <label for="resultInput">清理後的乾淨網址</label>
-    <textarea id="resultInput" readonly placeholder="處理結果將顯示於此..."></textarea>
-    <div class="action-row">
-      <button id="btnCopy" class="btn-secondary">複製結果</button>
-    </div>
-  </div>
-
-  <div class="footnote">
-    展開透過你自己架設的 Cloudflare Worker 進行;若目標站台(如 Meta 系列)阻擋伺服器端抓取,會顯示手動開啟備援。連結內容不會被任何地方額外儲存。
-  </div>
-
-</div>
+  <div class="toast" id="toast"><span class="ok">✓</span><span id="toastText">已複製乾淨連結!</span></div>
 
 <script>
-const WORKER_URL = 'https://urlcleaner.nxy1620.workers.dev/';
+(function(){
+  // 展開短網址所使用的 Cloudflare Worker(與 DELINK 相同)
+  const WORKER_URL = 'https://urlcleaner.nxy1620.workers.dev/';
 
-const urlInput = document.getElementById('urlInput');
-const resultInput = document.getElementById('resultInput');
-const fallbackNotice = document.getElementById('fallbackNotice');
-const fallbackLink = document.getElementById('fallbackLink');
-const btnExpand = document.getElementById('btnExpand');
-const btnPaste = document.getElementById('btnPaste');
-const btnCopy = document.getElementById('btnCopy');
+  const input = document.getElementById('urlInput');
+  const charCount = document.getElementById('charCount');
+  const clearBtn = document.getElementById('clearBtn');
+  const pasteBtn = document.getElementById('pasteBtn');
+  const execBtn = document.getElementById('execBtn');
+  const preview = document.getElementById('preview');
+  const copyBtn = document.getElementById('copyBtn');
+  const copyLabel = document.getElementById('copyLabel');
+  const resultContent = document.getElementById('resultContent');
+  const copiedPill = document.getElementById('copiedPill');
+  const feedbackLine = document.getElementById('feedbackLine');
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toastText');
+  const fallbackNotice = document.getElementById('fallbackNotice');
+  const fallbackLink = document.getElementById('fallbackLink');
 
-// 1. 追蹤參數清理邏輯
-// 修正重點:.includes('ref') 這類「子字串比對」會誤刪像 ?prefer=dark 這種
-// 剛好包含 ref 三個字母、但完全不是追蹤碼的正常參數。改成只比對「完整參數
-// 名稱等於 ref」或「以 ref_ 開頭」,避免誤殺。affiliate / tracker 同理收緊。
-function cleanTrackingParams(urlString) {
-  try {
-    const url = new URL(urlString);
-    const params = url.searchParams;
+  let copiedTimer = null;
+  let toastTimer = null;
+  let lastResults = [];
 
-    const exactKeys = new Set([
-      // Meta / IG / Threads
-      'fbclid', 'igsh', 's', 'share_id', 'mibextid', 'rdid', 'xmt', 'ig_rid',
-      'fb_action_ids', 'fb_action_types', 'fb_source', 'fb_ref',
-      'slof', 'hwta', 'http_ref', 'xsec',
-
-      // Google / Ads / Other
-      'gclid', 'gclsrc', 'dclid', 'wbraid', 'gbraid', 'si', 'feature', 'pp', 'p',
-      'twclid', 't', 'ttclid', '_r', '_t', 'smtt', 'st', 'sp_atk', 'tag', 'ref_', 'pd_rd_r', 'pd_rd_w', 'pd_rd_wg',
-      'hsctad', '_hsenc', '_hsmi', 'mc_cid', 'mc_eid', 'icid', 'ncid', 'mkt_tok', 'sc_cid', 'line', 'openExternalBrowser', 'ref', 'source'
-    ]);
-
-    const keysToDelete = [];
-
-    params.forEach((_, key) => {
-      const k = key.toLowerCase();
-      if (exactKeys.has(k)) {
-        keysToDelete.push(key);
-        return;
-      }
-      if (
-        k.startsWith('utm_') || k.startsWith('ig_') || k.startsWith('fb_') ||
-        k.startsWith('hmb_') || k.startsWith('ga_') || k.startsWith('pk_') ||
-        k.startsWith('piwik_') || k.startsWith('at_')
-      ) {
-        keysToDelete.push(key);
-        return;
-      }
-      // 收緊:只認「開頭是 ref/affiliate/tracker」或「以底線接續這些字」,
-      // 不再用任意位置的子字串比對(避免 prefer、referee 這類正常參數被誤刪)。
-      if (
-        /^(ref|affiliate|tracker)([_-]|$)/.test(k) ||
-        k.includes('clid')
-      ) {
-        keysToDelete.push(key);
-      }
-    });
-
-    keysToDelete.forEach(key => params.delete(key));
-
-    let cleanedUrl = url.toString();
-    if (cleanedUrl.endsWith('?')) {
-      cleanedUrl = cleanedUrl.slice(0, -1);
-    }
-
-    return cleanedUrl;
-  } catch (e) {
-    return urlString;
-  }
-}
-
-// 2. 剪貼簿一鍵貼上
-async function handlePaste() {
-  try {
-    const text = await navigator.clipboard.readText();
-    urlInput.value = text;
-  } catch (err) {
-    alert('無法存取剪貼簿,請直接長按輸入框貼上。');
-  }
-}
-
-// 3. 一鍵複製結果
-async function handleCopy() {
-  if (!resultInput.value || resultInput.value.startsWith('連線解析中')) return;
-  try {
-    await navigator.clipboard.writeText(resultInput.value);
-    const original = btnCopy.innerText;
-    btnCopy.innerText = '已複製 ✓';
-    btnCopy.classList.add('copied');
-    setTimeout(() => {
-      btnCopy.innerText = original;
-      btnCopy.classList.remove('copied');
-    }, 2000);
-  } catch (err) {
-    alert('複製失敗,請手動選取文字複製。');
-  }
-}
-
-// 4. 執行批次還原與清理
-async function handleExpand() {
-  const rawText = urlInput.value.trim();
-  if (!rawText) return;
-
-  const urlRegex = /(https?:\/\/[^\s]+)/gi;
-  const foundUrls = rawText.match(urlRegex);
-
-  if (!foundUrls || foundUrls.length === 0) {
-    alert('請輸入有效的網址');
-    return;
-  }
-
-  fallbackNotice.style.display = 'none';
-  resultInput.value = '連線解析中...';
-  btnExpand.disabled = true;
-
-  const cleanedResults = [];
-  let hasShareFallback = false;
-  let firstFallbackUrl = '';
-
-  for (let rawUrl of foundUrls) {
-    let finalResult = rawUrl;
+  // ---- 1. 追蹤參數清理邏輯(移植自 DELINK,保留非追蹤用的功能參數)----
+  function cleanTrackingParams(urlString) {
     try {
-      const response = await fetch(`${WORKER_URL}?url=${encodeURIComponent(rawUrl)}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.expandedUrl) {
-          finalResult = data.expandedUrl;
+      const url = new URL(urlString);
+      const params = url.searchParams;
+
+      const exactKeys = new Set([
+        // Meta / IG / Threads
+        'fbclid', 'igsh', 's', 'share_id', 'mibextid', 'rdid', 'xmt', 'ig_rid',
+        'fb_action_ids', 'fb_action_types', 'fb_source', 'fb_ref',
+        'slof', 'hwta', 'http_ref', 'xsec',
+
+        // Google / Ads / Other
+        'gclid', 'gclsrc', 'dclid', 'wbraid', 'gbraid', 'si', 'feature', 'pp', 'p',
+        'twclid', 't', 'ttclid', '_r', '_t', 'smtt', 'st', 'sp_atk', 'tag', 'ref_', 'pd_rd_r', 'pd_rd_w', 'pd_rd_wg',
+        'hsctad', '_hsenc', '_hsmi', 'mc_cid', 'mc_eid', 'icid', 'ncid', 'mkt_tok', 'sc_cid', 'line', 'openExternalBrowser', 'ref', 'source'
+      ]);
+
+      const keysToDelete = [];
+
+      params.forEach((_, key) => {
+        const k = key.toLowerCase();
+        if (exactKeys.has(k)) {
+          keysToDelete.push(key);
+          return;
         }
+        if (
+          k.startsWith('utm_') || k.startsWith('ig_') || k.startsWith('fb_') ||
+          k.startsWith('hmb_') || k.startsWith('ga_') || k.startsWith('pk_') ||
+          k.startsWith('piwik_') || k.startsWith('at_')
+        ) {
+          keysToDelete.push(key);
+          return;
+        }
+        // 只認開頭是 ref/affiliate/tracker(或接底線)、或含 clid,避免誤刪 prefer 等一般參數
+        if (
+          /^(ref|affiliate|tracker)([_-]|$)/.test(k) ||
+          k.includes('clid')
+        ) {
+          keysToDelete.push(key);
+        }
+      });
+
+      keysToDelete.forEach(key => params.delete(key));
+
+      let cleanedUrl = url.toString();
+      if (cleanedUrl.endsWith('?')) {
+        cleanedUrl = cleanedUrl.slice(0, -1);
       }
+
+      return cleanedUrl;
+    } catch (e) {
+      return urlString;
+    }
+  }
+
+  // ---- 2. 即時預覽(僅本地清理,不含展開,取輸入框中第一個網址做示意)----
+  function renderPreview() {
+    const raw = input.value;
+    const hasText = raw.trim().length > 0;
+    charCount.textContent = raw.length + ' chars';
+    clearBtn.style.display = hasText ? 'inline-block' : 'none';
+
+    if (!hasText) {
+      preview.classList.remove('show', 'error');
+      preview.innerHTML = '';
+      return;
+    }
+
+    const match = raw.trim().match(/(https?:\/\/[^\s]+)/i);
+    if (!match) {
+      preview.classList.add('show', 'error');
+      preview.textContent = '無法解析網址,請確認格式是否正確。';
+      return;
+    }
+
+    try {
+      const original = match[0];
+      const cleanedLocal = cleanTrackingParams(original);
+      const changed = original !== cleanedLocal;
+
+      preview.classList.add('show');
+      preview.classList.remove('error');
+      preview.innerHTML = '<span class="clean-part"></span>' +
+        (changed ? '<span class="cut-part">已偵測到可移除的追蹤參數</span>' : '');
+      preview.querySelector('.clean-part').textContent = cleanedLocal;
+    } catch (e) {
+      preview.classList.add('show', 'error');
+      preview.textContent = '無法解析網址,請確認格式是否正確。';
+    }
+  }
+
+  // ---- 3. 剪貼簿一鍵貼上 ----
+  async function handlePaste() {
+    try {
+      const text = await navigator.clipboard.readText();
+      input.value = text;
+      renderPreview();
+      input.focus();
     } catch (err) {
-      console.error('Worker error:', err);
-    }
-
-    finalResult = cleanTrackingParams(finalResult);
-    cleanedResults.push(finalResult);
-
-    if (finalResult.includes('/share/')) {
-      hasShareFallback = true;
-      if (!firstFallbackUrl) firstFallbackUrl = finalResult;
+      showToast('無法存取剪貼簿,請直接長按輸入框貼上');
     }
   }
 
-  btnExpand.disabled = false;
-  resultInput.value = cleanedResults.join('\n');
-
-  if (hasShareFallback) {
-    fallbackLink.href = firstFallbackUrl;
-    fallbackNotice.style.display = 'block';
+  // ---- 4. 複製到剪貼簿(含備援)----
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        return true;
+      } catch (e2) {
+        return false;
+      }
+    }
   }
-}
 
-btnPaste.addEventListener('click', handlePaste);
-btnExpand.addEventListener('click', handleExpand);
-btnCopy.addEventListener('click', handleCopy);
-
-// 5. Android Web Share Target 自動接收分享資料邏輯
-// 修正重點:原本分享進來只會展開清理、顯示結果,不會自動複製,使用者還是
-// 得手動點一次「複製結果」。這裡改成 await 展開完成後,直接接著自動複製,
-// 才是符合「分享 → 處理 → 複製好」這個訴求的完整流程。
-window.addEventListener('DOMContentLoaded', async () => {
-  const searchParams = new URLSearchParams(window.location.search);
-
-  const sharedTitle = searchParams.get('title') || '';
-  const sharedText = searchParams.get('text') || '';
-  const sharedUrl = searchParams.get('url') || '';
-
-  const combinedInput = [sharedTitle, sharedText, sharedUrl].filter(Boolean).join(' ');
-
-  if (combinedInput) {
-    urlInput.value = combinedInput;
-    history.replaceState({}, '', window.location.pathname);
-    await handleExpand();
-    await handleCopy();
+  function showToast(message) {
+    toastText.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
   }
-});
 
-// 6. 註冊 service worker —— Android 要把 PWA 轉成能出現在系統分享選單裡的
-// 應用程式(WebAPK),除了 manifest + icons,官方條件還要求有已註冊、
-// 帶 fetch handler 的 service worker。少了這步,分享選單可能不會出現這個工具。
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => { /* best-effort */ });
-}
+  // ---- 5. 執行批次還原(展開短網址)與清理 ----
+  async function handleExpand() {
+    const rawText = input.value.trim();
+    if (!rawText) {
+      showToast('請先貼上連結');
+      return [];
+    }
+
+    const urlRegex = /(https?:\/\/[^\s]+)/gi;
+    const foundUrls = rawText.match(urlRegex);
+
+    if (!foundUrls || foundUrls.length === 0) {
+      showToast('請輸入有效的網址');
+      return [];
+    }
+
+    fallbackNotice.style.display = 'none';
+    execBtn.disabled = true;
+    execBtn.classList.add('busy');
+    resultContent.classList.remove('placeholder');
+    resultContent.classList.add('result-text');
+    resultContent.textContent = '連線解析中...';
+
+    const cleanedResults = [];
+    let hasShareFallback = false;
+    let firstFallbackUrl = '';
+
+    for (let rawUrl of foundUrls) {
+      let finalResult = rawUrl;
+      try {
+        const response = await fetch(`${WORKER_URL}?url=${encodeURIComponent(rawUrl)}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.expandedUrl) {
+            finalResult = data.expandedUrl;
+          }
+        }
+      } catch (err) {
+        console.error('Worker error:', err);
+      }
+
+      finalResult = cleanTrackingParams(finalResult);
+      cleanedResults.push(finalResult);
+
+      if (finalResult.includes('/share/')) {
+        hasShareFallback = true;
+        if (!firstFallbackUrl) firstFallbackUrl = finalResult;
+      }
+    }
+
+    execBtn.disabled = false;
+    execBtn.classList.remove('busy');
+
+    lastResults = cleanedResults;
+    resultContent.textContent = cleanedResults.join('\n');
+
+    if (hasShareFallback) {
+      fallbackLink.href = firstFallbackUrl;
+      fallbackNotice.style.display = 'block';
+    }
+
+    return cleanedResults;
+  }
+
+  // ---- 6. 一鍵複製結果 ----
+  async function handleCopy() {
+    const text = lastResults.length ? lastResults.join('\n') : '';
+
+    if (!text) {
+      feedbackLine.textContent = '請先執行清理再複製';
+      feedbackLine.classList.add('show');
+      showToast('請先執行清理');
+      clearTimeout(copiedTimer);
+      copiedTimer = setTimeout(() => feedbackLine.classList.remove('show'), 1800);
+      return;
+    }
+
+    await copyToClipboard(text);
+    copyLabel.textContent = '已複製!';
+    copiedPill.classList.add('show');
+    feedbackLine.textContent = '已複製! ' + text.slice(0, 60) + (text.length > 60 ? '…' : '');
+    feedbackLine.classList.add('show');
+    showToast('已複製乾淨連結!');
+
+    clearTimeout(copiedTimer);
+    copiedTimer = setTimeout(() => {
+      copyLabel.textContent = '複製結果';
+      copiedPill.classList.remove('show');
+      feedbackLine.classList.remove('show');
+    }, 1800);
+  }
+
+  input.addEventListener('input', renderPreview);
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    renderPreview();
+    resultContent.classList.add('placeholder');
+    resultContent.classList.remove('result-text');
+    resultContent.textContent = '乾淨連結會顯示在這裡...';
+    lastResults = [];
+    fallbackNotice.style.display = 'none';
+    input.focus();
+  });
+  pasteBtn.addEventListener('click', handlePaste);
+  execBtn.addEventListener('click', handleExpand);
+  copyBtn.addEventListener('click', handleCopy);
+
+  // ---- 7. Android Web Share Target 自動接收分享資料 ----
+  // 分享進來後:自動展開清理 → 自動複製,完成「分享 → 處理 → 複製好」整套流程。
+  window.addEventListener('DOMContentLoaded', async () => {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    const sharedTitle = searchParams.get('title') || '';
+    const sharedText = searchParams.get('text') || '';
+    const sharedUrl = searchParams.get('url') || '';
+
+    const combinedInput = [sharedTitle, sharedText, sharedUrl].filter(Boolean).join(' ');
+
+    if (combinedInput) {
+      input.value = combinedInput;
+      renderPreview();
+      history.replaceState({}, '', window.location.pathname);
+      await handleExpand();
+      await handleCopy();
+    }
+  });
+
+  // ---- 8. 註冊 service worker(Android PWA 分享選單所需)----
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => { /* best-effort */ });
+  }
+})();
 </script>
 </body>
 </html>
