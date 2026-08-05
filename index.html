@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Clean Link — 一鍵清除連結追蹤參數</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#00A381">
+<meta name="theme-color" content="#0d1210">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -255,6 +255,10 @@
   .copy-btn svg{ transition:transform .12s ease; }
   .copy-btn:active svg{ transform:scale(0.9); }
 
+  .btn-group{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .line-btn{ border-color:rgba(6,199,85,0.25); }
+  .line-btn:hover{ box-shadow:0 6px 18px rgba(6,199,85,0.18); }
+
   .result-box{
     position:relative;
     background:#fff; border-radius:16px; border:1px solid rgba(0,0,0,0.06);
@@ -399,13 +403,21 @@
                   <h2 class="card-title" style="color:var(--green-dark);">乾淨連結</h2>
                   <span class="badge clean">CLEAN</span>
                 </div>
-                <button type="button" class="copy-btn" id="copyBtn">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <rect x="5" y="5" width="8" height="8" rx="2" stroke="#1a1a1a" stroke-width="1.2"/>
-                    <path d="M3 10V4C3 3.44772 3.44772 3 4 3H10" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round"/>
-                  </svg>
-                  <span id="copyLabel">複製結果</span>
-                </button>
+                <div class="btn-group">
+                  <button type="button" class="copy-btn line-btn" id="lineBtn">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 1.5C4.13 1.5 1 4.02 1 7.13C1 9.9 3.46 12.22 6.79 12.66C7.02 12.71 7.33 12.81 7.41 13.02C7.48 13.21 7.46 13.51 7.43 13.7C7.43 13.7 7.35 14.19 7.33 14.29C7.3 14.48 7.18 15.02 8 14.69C8.82 14.36 12.06 12.32 13.5 10.66C14.5 9.57 15 8.45 15 7.13C15 4.02 11.87 1.5 8 1.5Z" fill="#06C755"/>
+                    </svg>
+                    <span id="lineLabel">傳送到 LINE</span>
+                  </button>
+                  <button type="button" class="copy-btn" id="copyBtn">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <rect x="5" y="5" width="8" height="8" rx="2" stroke="#1a1a1a" stroke-width="1.2"/>
+                      <path d="M3 10V4C3 3.44772 3.44772 3 4 3H10" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round"/>
+                    </svg>
+                    <span id="copyLabel">複製結果</span>
+                  </button>
+                </div>
               </div>
 
               <div class="result-box">
@@ -483,6 +495,7 @@
   const preview = document.getElementById('preview');
   const copyBtn = document.getElementById('copyBtn');
   const copyLabel = document.getElementById('copyLabel');
+  const lineBtn = document.getElementById('lineBtn');
   const resultContent = document.getElementById('resultContent');
   const copiedPill = document.getElementById('copiedPill');
   const feedbackLine = document.getElementById('feedbackLine');
@@ -494,15 +507,6 @@
   let copiedTimer = null;
   let toastTimer = null;
   let lastResults = [];
-
-  // ---- 網址精準提取函式 (可完美剝離 IG 影片分享帶有的中文標題與多餘字元) ----
-  function extractUrls(text) {
-    if (!text) return [];
-    // 匹配 http/https 網址，排除中文字元、引號與括號
-    const urlRegex = /(https?:\/\/[^\s\u4e00-\u9fa5"'()<>[\]{}]+)/gi;
-    const matches = text.match(urlRegex) || [];
-    return matches.map(u => u.replace(/[\s,。，！!？?]+$/, ''));
-  }
 
   // ---- 1. 追蹤參數清理邏輯(移植自 DELINK,保留非追蹤用的功能參數)----
   function cleanTrackingParams(urlString) {
@@ -573,15 +577,15 @@
       return;
     }
 
-    const urls = extractUrls(raw);
-    if (urls.length === 0) {
+    const match = raw.trim().match(/(https?:\/\/[^\s]+)/i);
+    if (!match) {
       preview.classList.add('show', 'error');
       preview.textContent = '無法解析網址,請確認格式是否正確。';
       return;
     }
 
     try {
-      const original = urls[0];
+      const original = match[0];
       const cleanedLocal = cleanTrackingParams(original);
       const changed = original !== cleanedLocal;
 
@@ -645,7 +649,8 @@
       return [];
     }
 
-    const foundUrls = extractUrls(rawText);
+    const urlRegex = /(https?:\/\/[^\s]+)/gi;
+    const foundUrls = rawText.match(urlRegex);
 
     if (!foundUrls || foundUrls.length === 0) {
       showToast('請輸入有效的網址');
@@ -728,6 +733,33 @@
     }, 1800);
   }
 
+  // ---- 6b. 分享清理好的連結(優先用系統分享選單,可自行選擇要用哪個 LINE)----
+  async function handleLineShare() {
+    const text = lastResults.length ? lastResults.join('\n') : '';
+
+    if (!text) {
+      showToast('請先執行清理再分享');
+      return;
+    }
+
+    // 優先使用系統原生分享選單(navigator.share)。
+    // 手機上裝了兩個 LINE(例如原生 + 分身/雙開版)時,系統選單會把兩個
+    // App 分開列出,由使用者自己挑要用哪一個,網頁本身無法也不該擅自列出
+    // 裝置上安裝了哪些 App(瀏覽器基於隱私會封鎖這種存取)。
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return; // 使用者自己取消,不再退回深層連結
+      }
+    }
+
+    // 退回方案:瀏覽器不支援 Web Share API 時(例如桌機),直接開 LINE 的分享網址
+    const shareUrl = 'https://line.me/R/msg/text/?' + encodeURIComponent(text);
+    window.open(shareUrl, '_blank', 'noopener');
+  }
+
   input.addEventListener('input', renderPreview);
   clearBtn.addEventListener('click', () => {
     input.value = '';
@@ -742,6 +774,7 @@
   pasteBtn.addEventListener('click', handlePaste);
   execBtn.addEventListener('click', handleExpand);
   copyBtn.addEventListener('click', handleCopy);
+  lineBtn.addEventListener('click', handleLineShare);
 
   // ---- 7. Android Web Share Target 自動接收分享資料 ----
   // 分享進來後:自動展開清理 → 自動複製,完成「分享 → 處理 → 複製好」整套流程。
