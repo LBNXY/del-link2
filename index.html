@@ -236,12 +236,19 @@
     background:#fff; border-radius:16px; border:1px solid rgba(0,0,0,0.06);
     box-shadow:0 2px 10px rgba(0,0,0,0.03);
     padding:18px 16px; min-height:56px;
-    display:flex; align-items:center; gap:12px;
+    display:flex; align-items:flex-start; gap:12px;
   }
   .result-box .placeholder{ font-size:14px; color:#a8b5b0; font-weight:500; }
   .result-box .result-text{
     font-family:'Space Grotesk',monospace; font-size:14px; line-height:1.6; color:#11887B; font-weight:500;
     word-break:break-all; white-space:pre-wrap; padding-right:8px;
+  }
+  .result-line{ margin-bottom:6px; }
+  .result-line:last-child{ margin-bottom:0; }
+  .warn-badge{
+    display:inline-block; margin-left:8px; font-size:10px; font-weight:700;
+    color:#b25a1f; background:#fff2e2; border:1px solid #f3d3ad; border-radius:999px;
+    padding:2px 8px; font-family:'Noto Sans TC',sans-serif; white-space:nowrap; vertical-align:middle;
   }
   .result-dot{ width:28px; height:28px; border-radius:50%; background:#eef8f0; border:1px solid rgba(0,163,129,0.1); display:grid; place-items:center; flex-shrink:0; }
   .result-dot i{ width:8px; height:8px; border-radius:50%; background:var(--green); display:block; }
@@ -385,7 +392,7 @@
                 </span>
                 <span class="sep"></span>
                 <span>支援多網址批次清理</span>
-                <span class="meta-pill"><span class="bump"></span>本地處理 • 不額外儲存</span>
+                <span class="meta-pill"><span class="bump"></span>目前不支援Facebook連結</span>
               </div>
             </div>
 
@@ -537,6 +544,24 @@
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
   }
 
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // 顯示清理結果;若該筆網址展開失敗,額外標示提示(不影響複製內容,複製仍用純網址)
+  function renderResults(results, failedFlags) {
+    resultContent.innerHTML = results.map((text, i) => {
+      const warn = failedFlags[i]
+        ? '<span class="warn-badge">⚠ 展開失敗,顯示原始網址</span>'
+        : '';
+      return `<div class="result-line">${escapeHtml(text)}${warn}</div>`;
+    }).join('');
+  }
+
   // ---- 5. 執行批次還原(展開短網址)與清理 ----
   async function handleExpand() {
     const rawText = input.value.trim();
@@ -561,25 +586,33 @@
     resultContent.textContent = '連線解析中...';
 
     const cleanedResults = [];
+    const failedFlags = [];
     let hasShareFallback = false;
     let firstFallbackUrl = '';
 
     for (let rawUrl of foundUrls) {
       let finalResult = rawUrl;
+      let expandFailed = false;
       try {
         const response = await fetch(`${WORKER_URL}?url=${encodeURIComponent(rawUrl)}`);
         if (response.ok) {
           const data = await response.json();
           if (data && data.expandedUrl) {
             finalResult = data.expandedUrl;
+          } else {
+            expandFailed = true;
           }
+        } else {
+          expandFailed = true;
         }
       } catch (err) {
         console.error('Worker error:', err);
+        expandFailed = true;
       }
 
       finalResult = cleanTrackingParams(finalResult);
       cleanedResults.push(finalResult);
+      failedFlags.push(expandFailed);
 
       if (finalResult.includes('/share/')) {
         hasShareFallback = true;
@@ -591,7 +624,7 @@
     execBtn.classList.remove('busy');
 
     lastResults = cleanedResults;
-    resultContent.textContent = cleanedResults.join('\n');
+    renderResults(cleanedResults, failedFlags);
 
     if (hasShareFallback) {
       fallbackLink.href = firstFallbackUrl;
